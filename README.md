@@ -1,6 +1,10 @@
 # NOTAM Mapper backend
 
-Set the following environment variables:
+This is a python Flask server that provides an API for the NOTAM Mapper
+frontend. See https://github.com/wiseman/notam-mapper-fe for the frontend code.
+
+
+To run the backend, first set the following environment variables:
 
 | Environment Variable | Description                 |
 |----------------------|-----------------------------|
@@ -9,4 +13,3 @@ Set the following environment variables:
 
 Then run `python server.py` to start the API server.
 
-See https://github.com/wiseman/notam-mapper-fe for the frontend code.
