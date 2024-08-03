@@ -1,0 +1,32 @@
+name: build-and-deploy
+# Only run when master is pushed.
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: build
+        env:
+          BASE_PATH: '/${{ github.event.repository.name }}'
+        # Build locally first to make sure it works.
+        run: |
+          tar cf deploy.tar requirements.txt server.py notamai.py Dockerfile captain-definition
+      - name: Deploy App to CapRover
+        uses: caprover/deploy-from-github@v1.0.1
+        with:
+          server: '${{ secrets.CAPROVER_SERVER }}'
+          app: '${{ secrets.APP_NAME }}'
+          token: '${{ secrets.APP_TOKEN }}'
