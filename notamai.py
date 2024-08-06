@@ -564,6 +564,7 @@ def few_shot_messages() -> List[dict]:
         (NOTAM6_TXT, NOTAM6),
         (NOTAM7_TXT, NOTAM7),
         (NOTAM8_TXT, NOTAM8),
+        (NOTAM9_TXT, NOTAM9),
     ]:
         messages.append(
             {"role": "user", "content": "Decode the following NOTAM:\n\n" + text}
