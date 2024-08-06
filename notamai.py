@@ -151,25 +151,19 @@ class Notam(BaseModel):
         default_factory=list,
         description="List of the daily times the NOTAM is active, in Zulu time. E.g. 1000Z-1300Z.",
     )
-    start_date: Optional[datetime.datetime]
-    end_date: Optional[datetime.datetime]
+    start_date: Optional[str] = Field(
+        default=None,
+        description="The start date and time of the NOTAM in ISO-8601 format, UTC time. Optional.",
+    )
+    end_date: Optional[str] = Field(
+        default=None,
+        description="The end date and time of the NOTAM in ISO-8601 format, UTC time. Optional.",
+    )
     caveats: List[str] = Field(
         default_factory=list,
         description="List of any caveats or additional information about the NOTAM.",
     )
-
-    @field_serializer("start_date")
-    def serialize_start_date(self, dt: Optional[datetime.datetime]) -> Optional[str]:
-        if dt is None:
-            return None
-        return convert_datetime_to_iso_8601_with_z_suffix(transform_to_utc_datetime(dt))
-
-    @field_serializer("end_date")
-    def serialize_end_date(self, dt: Optional[datetime.datetime]) -> Optional[str]:
-        if dt is None:
-            return None
-        return convert_datetime_to_iso_8601_with_z_suffix(transform_to_utc_datetime(dt))
-
+    
     def as_geojson(self) -> dict:
         """Returns a GeoJSON FeatureCollection."""
         feature_collection = {
@@ -250,8 +244,8 @@ NOTAM1 = Notam(
     accountability="GPS",
     location="ZLC",
     description="GPS (MHRC GPS 24-02)(INCLUDING WAAS,GBAS, AND ADS-B) MAY NOT BE AVBL",
-    start_date=datetime.datetime(2021, 1, 8, 17, 0),
-    end_date=datetime.datetime(2021, 1, 12, 20, 0),
+    start_date='2021-01-08T17:00:00Z',
+    end_date='2021-01-12T20:00:00Z',
     daily_times=["1700-2000"],
     range_rings=[
         RangeRing(
@@ -297,8 +291,8 @@ NOTAM2 = Notam(
     accountability="GPS",
     location="ZLA",
     description="GPS (SCTTR GPS 24-02) (INCLUDING WAAS, GBAS, AND ADS-B) MAY NOT BE AVBL",
-    start_date=datetime.datetime(2021, 1, 8, 17, 0),
-    end_date=datetime.datetime(2021, 1, 19, 22, 0),
+    start_date='2021-01-08T17:00:00Z',
+    end_date='2021-01-19T22:00:00Z',
     daily_times=["0900-2300"],
     range_rings=[],
     polygons=[
@@ -329,8 +323,8 @@ NOTAM3 = Notam(
     accountability="GPS",
     location="ZLA",
     description="GPS (SCTTR GPS 24-03) (INCLUDING WAAS, GBAS, AND ADS-B) MAY NOT BE AVBL",
-    start_date=datetime.datetime(2024, 5, 14, 7, 0),
-    end_date=datetime.datetime(2024, 5, 14, 13, 0),
+    start_date='2024-05-14T07:00:00Z',
+    end_date='2024-05-14T13:00:00Z',
     daily_times=[],
     polygons=[
         Polygon(
@@ -361,8 +355,8 @@ NOTAM4 = Notam(
     accountability="GPS",
     location="ZLA",
     description="GPS (SCTTR GPS 24-03) (INCLUDING WAAS, GBAS, AND ADS-B) MAY NOT BE AVBL",
-    start_date=datetime.datetime(2024, 5, 15, 7, 0),
-    end_date=datetime.datetime(2024, 5, 15, 13, 0),
+    start_date='2024-05-15T07:00:00Z',
+    end_date='2024-05-15T13:00:00Z',
     daily_times=["0700Z-1300Z"],
     polygons=[
         Polygon(
@@ -396,8 +390,8 @@ NOTAM5 = Notam(
     accountability="GPS",
     location="ZLA",
     description="GPS (WSMRNM GPS 24-30) (INCLUDING WAAS, GBAS, AND ADS-B) MAY NOT BE AVBL",
-    start_date=datetime.datetime(2024, 4, 12, 18, 30),
-    end_date=datetime.datetime(2024, 4, 14, 22, 30),
+    start_date='2024-04-12T18:30:00Z',
+    end_date='2024-04-14T22:30:00Z',
     daily_times=["1830-2230"],
     range_rings=[
         RangeRing(
@@ -483,50 +477,78 @@ NOTAM7 = Notam(
     ],
 )
 
-NOTAM8_TXT = """!GPS 01/020 ZLC NAV GPS (MHRC GPS 24-02)(INCLUDING WAAS,GBAS, AND 
-ADS-B) MAY NOT BE AVBL WI A 372NM RADIUS CENTERED AT
-424006N1153225W(TWF266048) FL400-UNL,
-332NM RADIUS AT FL250,
-229NM RADIUS AT 10000FT,
-233NM RADIUS AT 4000FT AGL,
-193NM RADIUS AT 50FT AGL.
-DLY 1700-2000
-2401081700-2401122000"""
+NOTAM8_TXT = """A2734/24 NOTAMN
+Q) OIIX/QWMLW/IV/BO/W/000/120/
+A) OIIX B) 2408071130 C) 2408080730
+D) AUG 07 /1130-1430
+AUG 08 /0430-0730
+E) GUN FIRING WILL TAKE PLACE WI AREA :
+342123N 0495625E
+342604N 0500121E
+342300N 0500706E
+341805N 0500522E
+F) GND G) 12000FT AMSL
+CREATED: 06 Aug 2024 08:03:00
+SOURCE: OIIIYNYX"""
 
 NOTAM8 = Notam(
-    number="01/020",
-    accountability="GPS",
-    location="ZLC",
-    description="GPS (MHRC GPS 24-02)(INCLUDING WAAS,GBAS, AND ADS-B) MAY NOT BE AVBL",
-    start_date=datetime.datetime(2021, 1, 8, 17, 0),
-    end_date=datetime.datetime(2021, 1, 12, 20, 0),
-    daily_times=["1700-2000"],
+    number="A2734/24",
+    accountability="OIIX",
+    location="OIIX",
+    description="GUN FIRING WILL TAKE PLACE",
+    start_date='2024-08-07T11:30:00Z',
+    end_date='2024-08-08T07:30:00Z',
+    daily_times=["1130-1430", "0430-0730"],
+    range_rings=[],
+    polygons=[
+        Polygon(
+            coordinates=[
+                Coordinates(lat="342123N", lon="0495625E"),
+                Coordinates(lat="342604N", lon="0500121E"),
+                Coordinates(lat="342300N", lon="0500706E"),
+                Coordinates(lat="341805N", lon="0500522E"),
+                Coordinates(lat="342123N", lon="0495625E"),
+            ],
+            altitude=AltitudeRange(min=SurfaceAlt(), max=MslAlt(height_ft=12000)),
+        )
+    ],
+    caveats=[],
+)
+
+NOTAM9_TXT = """A0451/24 NOTAMN
+Q) LLLL/QANLT/I /NBO/E /110/600/3226N03421E010
+A) LLLL B) 2407010001 C) 2408312059 E) ATS RTE W13 AVBL BTN JILET-DAFNA, BTN 11,000FT-16,000FT AMSL
+H24 AND BTN TAPUZ-DAFNA BTN FL330-FL600, AS FLW:
+SUN 2000 - MON 0400
+MON 2000 - TUE 0400
+TUE 2000 - WED 0400
+WED 2000 - THU 0400
+THU 1400 - SUN 0500
+ALL TIMES UTC.
+CREATED: 23 Jun 2024 11:46:00
+SOURCE: EUECYTYN
+"""
+
+NOTAM9 = Notam(
+    number="A0451/24",
+    accountability="LLLL",
+    location="LLLL",
+    description="ATS RTE W13 AVBL BTN JILET-DAFNA, BTN 11,000FT-16,060FT AMSL H24 AND BTN TAPUZ-DAFNA BTN FL330-FL600",
+    start_date='2024-07-01T00:01:00Z',
+    end_date='2024-08-31T20:59:00Z',
+    daily_times=[
+        "SUN 2000 - MON 0400",
+        "MON 2000 - TUE 0400",
+        "TUE 2000 - WED 0400",
+        "WED 2000 - THU 0400",
+        "THU 1400 - SUN 0500",
+    ],
     range_rings=[
         RangeRing(
-            center=Coordinates(lat="424006N", lon="1153225W"),
-            radius_nm=372,
-            altitude=AltitudeRange(min=FlAlt(height_ft=400), max=UnlimitedAlt()),
-        ),
-        RangeRing(
-            center=Coordinates(lat="424006N", lon="1153225W"),
-            radius_nm=332,
-            altitude=FlAlt(height_ft=250),
-        ),
-        RangeRing(
-            center=Coordinates(lat="424006N", lon="1153225W"),
-            radius_nm=229,
-            altitude=MslAlt(height_ft=10000),
-        ),
-        RangeRing(
-            center=Coordinates(lat="424006N", lon="1153225W"),
-            radius_nm=233,
-            altitude=AglAlt(height_ft=4000),
-        ),
-        RangeRing(
-            center=Coordinates(lat="424006N", lon="1153225W"),
-            radius_nm=193,
-            altitude=AglAlt(height_ft=50),
-        ),
+            center=Coordinates(lat="322600N", lon="0342100E"),
+            radius_nm=10,
+            altitude=AltitudeRange(min=MslAlt(height_ft=11000), max=MslAlt(height_ft=16000)),
+        )
     ],
     polygons=[],
     caveats=[],
@@ -625,7 +647,6 @@ def main():
     notam_txt = sys.stdin.read()
     notam = parse_notam(notam_txt)
     print(notam.model_dump_json(indent=2))
-
 
 
 if __name__ == "__main__":
