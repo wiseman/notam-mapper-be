@@ -13,3 +13,10 @@ To run the backend, first set the following environment variables:
 
 Then run `python server.py` to start the API server.
 
+To deploy:
+
+```bash
+tar cf deploy.tar captain-definition Dockerfile notamai.py requirements.txt server.py
+```
+
+Then upload the tarball to CapRover.
